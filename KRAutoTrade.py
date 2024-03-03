@@ -423,12 +423,13 @@ try:
             conn = sqlite3.connect('tickers.db')
 
             query = ("SELECT Code, Name from " 
-                    + "( SELECT a.Code, d.Name, a.rank + b.rank + d.rank + e.rank*2 f_rank from"
+                    + "( SELECT a.Code, d.Name, a.rank + b.rank + c.rank + d.rank + e.rank f_rank from"
                     + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(Amount) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) a, "
-                    + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) b,"                      
-                    + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Open < Close and Marcap < 30000000000000 ) d, "
-                    + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Open < Close and Marcap < 30000000000000 ) e "
-                    + "where a.Code=b.Code and b.Code=d.Code and d.Code=e.Code order by f_rank);"
+                    + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) b,"    
+                    + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT MIN(DATE) FROM Market_List ) and ChagesRatio <= 30 group by Code ) c,	"                                              
+                    + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 ) d, "
+                    + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 ) e "
+                    + "where a.Code=b.Code and b.Code=c.Code and c.Code=d.Code and d.Code=e.Code order by f_rank);"
             )
             
             df_result = pd.read_sql_query(query, conn)
@@ -488,12 +489,13 @@ try:
                     conn = sqlite3.connect('tickers.db')
 
                     query = ("SELECT Code, Name from " 
-                            + "( SELECT a.Code, d.Name, a.rank + b.rank + d.rank + e.rank*0.5 f_rank from"
+                            + "( SELECT a.Code, d.Name, a.rank + b.rank + c.rank + d.rank + e.rank f_rank from"
                             + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(Amount) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) a, "
-                            + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) b,"                                                  
+                            + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) b,"    
+                            + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT MIN(DATE) FROM Market_List ) and ChagesRatio <= 30 group by Code ) c,	"                                              
                             + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 ) d, "
                             + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 ) e "
-                            + "where a.Code=b.Code and b.Code=d.Code and d.Code=e.Code order by f_rank);"
+                            + "where a.Code=b.Code and b.Code=c.Code and c.Code=d.Code and d.Code=e.Code order by f_rank);"
                     )
 
                     df_result = pd.read_sql_query(query, conn)
@@ -501,10 +503,10 @@ try:
                     conn.commit()
                     conn.close()
 
-                    df_name = df_result.head(7)
+                    df_name = df_result.head(10)
                     send_message(df_name)  # 매매 종목명 출력
 
-                    df_code = df_result['Code'].head(7)
+                    df_code = df_result['Code'].head(10)
                     symbol_list = df_code.values.tolist()                          
 
                     for sym in symbol_list:                    
