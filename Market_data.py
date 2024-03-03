@@ -26,7 +26,7 @@ conn.commit()
 conn.close()
 
 conn = sqlite3.connect('tickers.db')
-query = f"DELETE FROM Market_List WHERE DATE < (SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 4);" 
+query = f"DELETE FROM Market_List WHERE DATE < (SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 25);" 
 conn.execute(query)
 conn.commit()
 conn.close()
