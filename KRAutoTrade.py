@@ -371,13 +371,14 @@ try:
                     conn = sqlite3.connect('tickers.db')
 
                     query = ("SELECT Code, Name from " 
-                            + "( SELECT a.Code, d.Name, a.rank + b.rank + d.rank + e.rank*2 f_rank from"
-                            + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(Amount) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 1) group by Code ) a, "
-                            + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 1) group by Code ) b,"
-                            + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 0 and ChagesRatio > -5 and Open < Close and Marcap < 30000000000000 ) d, "
-                            + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 0 and ChagesRatio > -5 and Open < Close and Marcap < 30000000000000 ) e "
-                            + "where a.Code=b.Code and b.Code=d.Code and d.Code=e.Code order by f_rank);"
-                    )
+                            + "( SELECT a.Code, d.Name, a.rank + b.rank + c.rank + d.rank + e.rank f_rank from"
+                            + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(Amount) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 2) group by Code ) a, "
+                            + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 2) group by Code ) b,"    
+                            + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT MIN(DATE) FROM Market_List ) and ChagesRatio <= 30 group by Code ) c,	"                                              
+                            + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 1 and ChagesRatio > -6 and Marcap < 30000000000000 and Close > 1100  ) d, "
+                            + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 1 and ChagesRatio > -6 and Marcap < 30000000000000 and Close > 1100  ) e "
+                            + "where a.Code=b.Code and b.Code=c.Code and c.Code=d.Code and d.Code=e.Code order by f_rank);"
+                    )                    
 
                     df_result = pd.read_sql_query(query, conn)
 
@@ -427,8 +428,8 @@ try:
                     + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(Amount) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) a, "
                     + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) b,"    
                     + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT MIN(DATE) FROM Market_List ) and ChagesRatio <= 30 group by Code ) c,	"                                              
-                    + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 ) d, "
-                    + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 ) e "
+                    + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 and Close > 1100  ) d, "
+                    + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 and Close > 1100  ) e "
                     + "where a.Code=b.Code and b.Code=c.Code and c.Code=d.Code and d.Code=e.Code order by f_rank);"
             )
             
@@ -493,8 +494,8 @@ try:
                             + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(Amount) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) a, "
                             + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT DISTINCT DATE FROM Market_List ORDER BY DATE DESC LIMIT 1 OFFSET 3) group by Code ) b,"    
                             + "    ( SELECT Code, ROW_NUMBER() OVER (ORDER BY sum(ChagesRatio) DESC) AS rank FROM Market_List where Date >= ( SELECT MIN(DATE) FROM Market_List ) and ChagesRatio <= 30 group by Code ) c,	"                                              
-                            + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 ) d, "
-                            + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 ) e "
+                            + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY Amount DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 and Close > 1100  ) d, "
+                            + "    ( SELECT Code, Name,  ROW_NUMBER() OVER (ORDER BY ChagesRatio DESC) AS rank FROM Market_now where ChagesRatio < 29 and ChagesRatio > 8 and Marcap < 30000000000000 and Close > 1100  ) e "
                             + "where a.Code=b.Code and b.Code=c.Code and c.Code=d.Code and d.Code=e.Code order by f_rank);"
                     )
 
