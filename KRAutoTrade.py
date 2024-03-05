@@ -315,7 +315,7 @@ try:
         t_sell_fin   = t_now.replace(hour=14, minute=20, second=0, microsecond=0)
         t_buy_1      = t_now.replace(hour=14, minute=30, second=0, microsecond=0)
         t_buy_2      = t_now.replace(hour=15, minute=19, second=0, microsecond=0)
-        t_exit       = t_now.replace(hour=19, minute=35, second=0,microsecond=0)         
+        t_exit       = t_now.replace(hour=15, minute=35, second=0,microsecond=0)         
         today        = datetime.datetime.today().weekday()     
 
         if t_now < t_9 : 
@@ -416,7 +416,7 @@ try:
             else :
                 send_message_multi("종목 매수가 완료 되었습니다. 보유종목수 :" , len(stock_dict))                                                     
                 time.sleep(60) 
-            time.sleep(300) 
+            time.sleep(180)
 
         if  t_12 < t_now < t_1400 :
             send_message("======오전장 종목 매도 시간 : 14:20 ~ 14:30 =====")   
