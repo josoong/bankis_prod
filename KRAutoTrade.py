@@ -292,7 +292,7 @@ try:
     buy_amount = total_eval * buy_percent  # 종목별 주문 금액 계산        
     soldout = False
     buy_jb = False    
-    jb_1430 = False    
+    jb_1400 = False    
     Market_data = False 
     MarketTiming = "False"
     python_MT = 'MarketTiming.py'                
@@ -311,9 +311,9 @@ try:
         t_sell_end   = t_now.replace(hour=9, minute=9, second=0, microsecond=0)        
         t_buy_0      = t_now.replace(hour=9, minute=10, second=0, microsecond=0)
         t_12         = t_now.replace(hour=12, minute=0, second=0, microsecond=0)
-        t_1430       = t_now.replace(hour=14, minute=30, second=0, microsecond=0)
-        t_sell_fin   = t_now.replace(hour=14, minute=55, second=0, microsecond=0)
-        t_buy_1      = t_now.replace(hour=15, minute=11, second=0, microsecond=0)
+        t_1400       = t_now.replace(hour=14, minute=0, second=0, microsecond=0)
+        t_sell_fin   = t_now.replace(hour=14, minute=20, second=0, microsecond=0)
+        t_buy_1      = t_now.replace(hour=14, minute=30, second=0, microsecond=0)
         t_buy_2      = t_now.replace(hour=15, minute=19, second=0, microsecond=0)
         t_exit       = t_now.replace(hour=19, minute=35, second=0,microsecond=0)         
         today        = datetime.datetime.today().weekday()     
@@ -417,7 +417,13 @@ try:
                 send_message_multi("종목 매수가 완료 되었습니다. 보유종목수 :" , len(stock_dict))                                                     
                 time.sleep(60) 
             time.sleep(300) 
-        if t_1430 < t_now < t_sell_fin and jb_1430 == False:  # 종가베팅 1차 종목선정 14:30~14:50
+
+        if  t_12 < t_now < t_1400 :
+            send_message("======오전장 종목 매도 시간 : 14:20 ~ 14:30 =====")   
+            get_stock_balance()                 
+            time.sleep(600)       
+
+        if t_1400 < t_now < t_sell_fin and jb_1400 == False:  # 종가베팅 1차 종목선정 14:00~14:20
             send_message("종가베팅 1차 종목선정 (MarketTiming 무관)- 14:30~14:45")   
 
             subprocess.run(["python", python_Trade_now], capture_output=True, text=True)                  
@@ -437,7 +443,7 @@ try:
 
             df_Trade_Target = df_result.head(7)
             send_message(df_Trade_Target)                                      
-            jb_1430 = True       
+            jb_1400 = True       
 
             conn.commit()
             conn.close()
@@ -445,8 +451,8 @@ try:
             send_message("===========14:45까지 Waiting ===========")       
             time.sleep(10)                   
 
-        if t_sell_fin < t_now < t_buy_1 and soldout == False: # 오전장 매매 수량 매도 14:55 ~ 15:10
-            send_message("======오전장 종목 매도 시작 14:55 ~ 15:10 =====")      
+        if t_sell_fin < t_now < t_buy_1 and soldout == False: # 오전장 매매 수량 매도 14:20 ~ 14:30
+            send_message("======오전장 종목 매도 시작 14:20 ~ 14:30 =====")      
             get_stock_balance()         
             for sym, qty in stock_dict.items():
                 sell(sym, qty)
@@ -461,13 +467,13 @@ try:
             buy_amount = total_eval * buy_percent  # 종목별 주문 금액 계산                 
             send_message_multi("종목별 주문 금액 :" , buy_amount)              
 
-        if t_buy_1 < t_now < t_buy_2 :  # 15:11 ~ 15:19 : 매수
+        if t_buy_1 < t_now < t_buy_2 :  # 14:30 ~ 15:19 : 매수
             
             stock_dict = get_stock_balance()     
             send_message_multi("보유종목수 :" , len(stock_dict))    
 
             if len(stock_dict) < 2 :
-                send_message("=== 종가베팅 매수진행 시간- 15:11 ~ 15:19 ===")  
+                send_message("=== 종가베팅 매수진행 시간-  14:30 ~ 15:19 ===")  
                 send_message("========보유 현금 조회========")    
                 total_cash = get_balance() # 주문가능 현금 조회
                 total_eval = get_tot_eval() # 총 평가금액
@@ -539,7 +545,7 @@ try:
                     time.sleep(5)            
             else :
                 send_message_multi("종목 매수가 완료 되었습니다. 보유종목수 :" , len(stock_dict))                                                     
-                time.sleep(300) 
+                time.sleep(180) 
         if t_buy_2 < t_now < t_exit:  # 15:19 ~ 15:35 : balance check
             if soldout == False:
                 stock_dict = get_stock_balance()
